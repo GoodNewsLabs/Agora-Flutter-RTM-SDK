@@ -99,6 +99,37 @@ extension AgoraRtmChannelMemberCount {
     }
 }
 
+extension AgoraRtmMetadataItem {
+    func toJson() -> [String: Any?] {
+        return [
+            "key": key,
+            "value": value,
+            "revision": revision,
+            "updateTs": updateTs,
+            "authorUserId": authorUserId,
+        ]
+    }
+}
+
+extension AgoraRtmMetadata {
+    func toJson() -> [String: Any?] {
+        return [
+            "items": items?.toJson(),
+            "majorRevision": majorRevision,
+        ]
+    }
+}
+
+extension AgoraRtmMetadataOptions {
+    func toJson() -> [String: Any?] {
+        return [
+            "majorRevision": majorRevision,
+            "enableRecordTs": enableRecordTs,
+            "enableRecordUserId": enableRecordUserId,
+        ]
+    }
+}
+
 extension Dictionary where Key == String {
     func toRtmMessage() -> AgoraRtmMessage {
         let text = self["text"] as? String
@@ -176,6 +207,33 @@ extension Dictionary where Key == String {
         }
         return context
     }
+
+    func toMetadataItem() -> AgoraRtmMetadataItem {
+        let metadataItem = AgoraRtmMetadataItem()
+        if let key = self["key"] as? String {
+            metadataItem.key = key
+        }
+        metadataItem.value = self["value"] as? String
+        if let revision = self["revision"] as? Int64 {
+            metadataItem.revision = revision
+        }
+        metadataItem.authorUserId = self["authorUserId"] as? String
+        return metadataItem
+    }
+
+    func toMetadataOptions() -> AgoraRtmMetadataOptions {
+        let metadataOptions = AgoraRtmMetadataOptions()
+        if let majorRevision = self["majorRevision"] as? Int64 {
+            metadataOptions.majorRevision = majorRevision
+        }
+        if let enableRecordTs = self["enableRecordTs"] as? Bool {
+            metadataOptions.enableRecordTs = enableRecordTs
+        }
+        if let enableRecordUserId = self["enableRecordUserId"] as? Bool {
+            metadataOptions.enableRecordUserId = enableRecordUserId
+        }
+        return metadataOptions
+    }
 }
 
 extension Array {
@@ -185,6 +243,10 @@ extension Array {
     
     func toRtmChannelAttributeList() -> [AgoraRtmChannelAttribute] {
         return self.map { ($0 as? [String: Any?] ?? [:]).toRtmChannelAttribute() }
+    }
+
+    func toMetadataItemList() -> [AgoraRtmMetadataItem] {
+        return self.map { ($0 as? [String: Any?] ?? [:]).toMetadataItem() }
     }
     
     func toStringList() -> [String] {
@@ -198,6 +260,7 @@ extension Array {
             case let it as AgoraRtmChannelAttribute: return it.toJson()
             case let it as AgoraRtmMember: return it.toJson()
             case let it as AgoraRtmChannelMemberCount: return it.toJson()
+            case let it as AgoraRtmMetadataItem: return it.toJson()
             default: return [:]
             }
         }
